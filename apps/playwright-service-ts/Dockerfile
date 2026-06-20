@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json pnpm-lock.yaml ./
-RUN corepack enable && pnpm install --frozen-lockfile
+RUN npm install -g pnpm@10.32.1 && pnpm install --frozen-lockfile
 
 # Install shared browser system libraries without publishing/downloading the
 # regular Playwright browser as a release artifact for this branch.
