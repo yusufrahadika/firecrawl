@@ -79,7 +79,8 @@ Use `stealth-browser-build` as the long-lived integration branch for this fork, 
 1. Keep the fork's `main` synced with upstream Firecrawl.
 2. Rebase `stealth-browser-build` onto the updated `main` when upstream changes need to be picked up.
 3. Create feature branches from `stealth-browser-build` for browser-variant work, then open PRs back into `stealth-browser-build` rather than directly changing the long-lived branch.
-4. Resolve conflicts primarily in the small adapter/Docker/CI files; avoid changing scrape route logic unless upstream requires it.
-5. Keep future changes in isolated commits by intent so individual browser variants can be reviewed or reverted independently.
+4. Keep feature-branch changes in isolated commits by intent so individual browser variants can be reviewed or reverted independently.
+5. Prefer squash-merging feature PRs into `stealth-browser-build` so the long-lived branch stays compact while preserving detailed review history in the PR.
+6. Resolve conflicts primarily in the small adapter/Docker/CI files; avoid changing scrape route logic unless upstream requires it.
 
 The GHCR workflow publishes stealth images from `stealth-browser-build` after changes are merged there.
