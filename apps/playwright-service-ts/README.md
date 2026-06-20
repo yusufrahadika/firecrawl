@@ -74,9 +74,12 @@ Add `PLAYWRIGHT_MICROSERVICE_URL=http://localhost:3003/scrape` to `/apps/api/.en
 
 ## Maintenance workflow
 
-Keep upstream sync simple by maintaining these changes in the single `stealth-browser-build` branch:
+Use `stealth-browser-build` as the long-lived integration branch for this fork, and keep implementation work in short-lived feature branches:
 
-1. Sync the fork's `main` with upstream Firecrawl.
-2. Rebase `stealth-browser-build` onto the updated `main`.
-3. Resolve conflicts primarily in the small adapter/Docker/CI files; avoid changing scrape route logic unless upstream requires it.
-4. Keep future changes in isolated commits by intent so individual browser variants can be reviewed or reverted independently.
+1. Keep the fork's `main` synced with upstream Firecrawl.
+2. Rebase `stealth-browser-build` onto the updated `main` when upstream changes need to be picked up.
+3. Create feature branches from `stealth-browser-build` for browser-variant work, then open PRs back into `stealth-browser-build` rather than directly changing the long-lived branch.
+4. Resolve conflicts primarily in the small adapter/Docker/CI files; avoid changing scrape route logic unless upstream requires it.
+5. Keep future changes in isolated commits by intent so individual browser variants can be reviewed or reverted independently.
+
+The GHCR workflow publishes stealth images from `stealth-browser-build` after changes are merged there.
