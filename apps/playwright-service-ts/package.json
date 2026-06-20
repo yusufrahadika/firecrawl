@@ -12,10 +12,13 @@
   "author": "Jeff Pereira",
   "license": "ISC",
   "dependencies": {
+    "camoufox-js": "^0.11.1",
+    "cloakbrowser": "^0.3.32",
     "dotenv": "^16.4.5",
     "express": "^5.2.1",
     "ipaddr.js": "^2.3.0",
     "playwright": "^1.58.1",
+    "playwright-core": "^1.58.1",
     "user-agents": "^1.1.669"
   },
   "devDependencies": {
