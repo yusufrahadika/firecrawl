@@ -19,13 +19,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     xvfb \
     xauth \
+    python3 \
+    make \
+    g++ \
     && if [ "$BROWSER_VARIANT" = "invisible_playwright" ]; then \
-      apt-get install -y --no-install-recommends python3 python3-pip git; \
+      apt-get install -y --no-install-recommends python3-pip git; \
     fi \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm@10.32.1 && pnpm install --frozen-lockfile
+RUN npm install -g pnpm@10.32.1 && pnpm install --frozen-lockfile && \
+    apt-get purge -y --auto-remove make g++ && \
+    if [ "$BROWSER_VARIANT" != "invisible_playwright" ]; then apt-get purge -y --auto-remove python3; fi
 
 # Install shared browser system libraries without publishing/downloading the
 # regular Playwright browser as a release artifact for this branch.
