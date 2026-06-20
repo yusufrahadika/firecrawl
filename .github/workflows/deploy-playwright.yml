@@ -1,9 +1,9 @@
-name: Deploy Playwright to GHCR
+name: Deploy Playwright Stealth Variants to GHCR
 
 on:
   push:
     branches:
-      - main
+      - stealth-browser-build
     paths:
       - apps/playwright-service-ts/**
       - .github/workflows/deploy-playwright.yml
@@ -11,14 +11,20 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
-        include:
-          - platform: linux/amd64
+        browser_variant:
+          - cloakbrowser
+          - camoufox
+          - invisible_playwright
+        platform:
+          - name: linux/amd64
             runner: blacksmith-4vcpu-ubuntu-2404
-          - platform: linux/arm64
+            suffix: linux-amd64
+          - name: linux/arm64
             runner: blacksmith-4vcpu-ubuntu-2404-arm
+            suffix: linux-arm64
     defaults:
       run:
         working-directory: './apps/playwright-service-ts'
@@ -33,8 +39,8 @@ jobs:
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lowercase Repo Owner
         run: |
@@ -42,30 +48,33 @@ jobs:
         env:
           GITHUB_REPOSITORY_OWNER: '${{ github.repository_owner }}'
 
-      - name: Extract platform suffix
-        run: |
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_SUFFIX=${platform//\//-}" >> $GITHUB_ENV
-
-      - name: 'Build and Push Image'
+      - name: 'Build and Push Stealth Variant Image'
         uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
         with:
           context: ./apps/playwright-service-ts
           push: true
-          tags: ghcr.io/${{ env.REPO_OWNER }}/playwright-service:${{ env.PLATFORM_SUFFIX }}
-          platforms: ${{ matrix.platform }}
+          tags: ghcr.io/${{ env.REPO_OWNER }}/playwright-service:${{ matrix.browser_variant }}-${{ matrix.platform.suffix }}
+          platforms: ${{ matrix.platform.name }}
           provenance: false
+          build-args: |
+            BROWSER_VARIANT=${{ matrix.browser_variant }}
 
   manifest:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     needs: build
+    strategy:
+      matrix:
+        browser_variant:
+          - cloakbrowser
+          - camoufox
+          - invisible_playwright
     steps:
       - name: 'Login to GitHub Container Registry'
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lowercase Repo Owner
         run: |
@@ -73,9 +82,9 @@ jobs:
         env:
           GITHUB_REPOSITORY_OWNER: '${{ github.repository_owner }}'
 
-      - name: 'Create and Push Multi-Arch Manifest'
+      - name: 'Create and Push Stealth Variant Multi-Arch Manifest'
         run: |
-          docker manifest create ghcr.io/${{ env.REPO_OWNER }}/playwright-service:latest \
-            ghcr.io/${{ env.REPO_OWNER }}/playwright-service:linux-amd64 \
-            ghcr.io/${{ env.REPO_OWNER }}/playwright-service:linux-arm64
-          docker manifest push ghcr.io/${{ env.REPO_OWNER }}/playwright-service:latest
+          docker manifest create ghcr.io/${{ env.REPO_OWNER }}/playwright-service:latest-${{ matrix.browser_variant }} \
+            ghcr.io/${{ env.REPO_OWNER }}/playwright-service:${{ matrix.browser_variant }}-linux-amd64 \
+            ghcr.io/${{ env.REPO_OWNER }}/playwright-service:${{ matrix.browser_variant }}-linux-arm64
+          docker manifest push ghcr.io/${{ env.REPO_OWNER }}/playwright-service:latest-${{ matrix.browser_variant }}

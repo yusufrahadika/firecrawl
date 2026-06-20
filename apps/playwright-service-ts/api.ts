@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
-import { chromium, Browser, BrowserContext, Route, Request as PlaywrightRequest, Page } from 'playwright';
+import { Browser, BrowserContext, Route, Request as PlaywrightRequest, Page } from 'playwright';
+import { launchBrowser } from './browser_launcher';
 import dotenv from 'dotenv';
 import UserAgent from 'user-agents';
 import { getError } from './helpers/get_error';
@@ -183,18 +184,7 @@ interface UrlModel {
 let browser: Browser;
 
 const initializeBrowser = async () => {
-  browser = await chromium.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--disable-gpu'
-    ]
-  });
+  browser = await launchBrowser();
 };
 
 const createContext = async (skipTlsVerification: boolean = false, userAgentOverride?: string): Promise<{ context: BrowserContext; securityState: ContextSecurityState }> => {
