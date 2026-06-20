@@ -3,7 +3,7 @@ FROM node:18-slim
 WORKDIR /usr/src/app
 
 ARG BROWSER_VARIANT=cloakbrowser
-ARG PORT
+ARG PORT=3003
 
 ENV BROWSER_VARIANT=${BROWSER_VARIANT} \
     PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/playwright \
