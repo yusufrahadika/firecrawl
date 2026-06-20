@@ -54,6 +54,11 @@ start_xvfb() {
   XVFB_PID=$!
   export DISPLAY="$XVFB_DISPLAY"
   sleep 0.5
+
+  if ! is_pid_alive "$XVFB_PID"; then
+    echo "Xvfb failed to start on ${XVFB_DISPLAY}" >&2
+    exit 1
+  fi
 }
 
 stop_pid() {
